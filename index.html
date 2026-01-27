@@ -73,21 +73,26 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 48px 24px;
+      padding: 48px 24px 1em;
       transition: background-color 0.2s, color 0.2s;
     }
 
     .theme-toggle {
       position: fixed;
-      top: 16px;
-      right: 16px;
-      background: transparent;
+      top: 12px;
+      right: 12px;
+      background: var(--bg);
       border: none;
-      padding: 8px;
+      width: 45px;
+      height: 45px;
+      padding: 4px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
+      z-index: 10;
+      border-radius: 50%;
+      transition: background-color 0.2s;
     }
 
     .theme-toggle img {
@@ -127,6 +132,22 @@
       color: var(--text-secondary);
       margin-bottom: 32px;
       line-height: 1.5;
+    }
+
+    .body-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      line-height: 1.6;
+      text-align: justify;
+    }
+
+    .body-text p {
+      margin-bottom: 16px;
+    }
+
+    .body-text p:last-child {
+      margin-bottom: 0;
     }
 
     .coming-soon {
@@ -302,7 +323,10 @@
     }
 
     .social-links {
-      margin-top: 40px;
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 10;
     }
 
     .social-link-wrapper {
@@ -369,6 +393,51 @@
       height: 20px;
     }
 
+    .donate-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Jersey 10', sans-serif;
+      font-size: 28px;
+      padding: 12px 28px;
+      background-color: var(--primary);
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      clip-path: polygon(
+        4px 0, calc(100% - 4px) 0,
+        calc(100% - 4px) 4px, 100% 4px,
+        100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px),
+        calc(100% - 4px) 100%, 4px 100%,
+        4px calc(100% - 4px), 0 calc(100% - 4px),
+        0 4px, 4px 4px
+      );
+    }
+
+    .heart-icon {
+      width: 24px;
+      height: 24px;
+      image-rendering: pixelated;
+    }
+
+    .footer {
+      margin-top: auto;
+      padding-top: 48px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      letter-spacing: 0.5px;
+    }
+
+    .footer a {
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
     @media (max-width: 480px) {
       h1 {
         font-size: 48px;
@@ -392,8 +461,17 @@
         top: 12px;
         right: 12px;
       }
+
+      .social-links {
+        top: auto;
+        left: auto;
+        bottom: 12px;
+        right: 12px;
+      }
     }
   </style>
+  <!-- Givebutter -->
+  <script async src="https://widgets.givebutter.com/latest.umd.cjs?acct=BvuKzDTxe9pSXSMR&p=other"></script>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "0db9f099e49c488eaca767a6ce19a02b"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body>
@@ -406,7 +484,8 @@
     <img src="logomark.png" alt="Clover" class="logo">
 
     <p class="tagline">
-      Dating without games or swiping. Deep compatibility matching for people who remember when dating apps actually worked.
+      <!-- Dating without games or swiping. Deep compatibility matching for people who remember when dating apps actually worked. -->
+      Deep compatibility matching. No swiping.<br/>Like the best dating apps were—before they sold out.
     </p>
 
     <div class="coming-soon"><img class="rocket-dark" src="rocket-dark.png" alt=""><img class="rocket-light" src="rocket-light.png" alt="">Coming soon</div>
@@ -419,6 +498,14 @@
       <p id="form-message" style="margin-top: 12px; font-size: 14px;">&nbsp;</p>
     </div>
 
+    <div class="body-text">
+      <p>The year is 2026 and the online dating scene is in shambles. All the most popular apps are highly extractive and anyone who uses them is certainly "braving it out there".</p>
+      <p>It seems time to do something about it. Clover is a labor of love inspired by what the best dating apps used to be—back when they actually cared about matching you with someone compatible. It is built entirely for the benefit of its users and is offered as a gift to the commons, funded by donations and kept as affordable as possible. It features honest design and deep compatibility matching through match questions.</p>
+      <p>Clover has no perverse incentives, no feature gatekeeping, no ads, no gamification, no stringing you along to keep you swiping. We believe that technology has unbelievable potential to help people find each other, and that the current state of the most popular dating apps—especially the swiping paradigm—reflects a gross misuse of technology. In that spirit, our aim is to find you your best match, period.</p>
+      <p><strong>We're funding Clover through donations with the goal of keeping it free and open.</strong> Right now we're aiming to raise enough money to cover development, marketing, and our first year of operations.  If donation funding isn't sustainable long-term, we'll introduce a minimal subscription model ($3–5/month) with ways to earn free access. Either way: no VCs, no investors, no compromises.</p>
+      <p>Every donation brings us closer to realizing the vision. Thank you for making this possible!</p>
+    </div>
+
     <div class="social-links">
       <span class="social-link-wrapper"><a href="https://twitter.com/DateClover" target="_blank" rel="noopener">
         <svg class="twitter-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -427,7 +514,23 @@
         Follow us on X
       </a></span>
     </div>
-  </div>
+
+    <div style="margin-top: 40px; text-align: center;">
+      <span class="button-wrapper"><a href="https://givebutter.com/JdcVTE" target="_blank" rel="noopener" class="donate-button">
+        <img src="heart-light.png" alt="" class="heart-icon">
+        Donate
+      </a></span>
+    </div>
+
+    <div style="margin-top: 24px; width: 100%; max-width: 440px; margin-left: auto; margin-right: auto;">
+      <givebutter-widget id="p5k1AL" style="width: 100%;"></givebutter-widget>
+    </div>
+
+    </div>
+
+  <footer class="footer">
+    Clover Dating &middot; 2026 &middot; <a href="mailto:hello@clover.dating">hello@clover.dating</a>
+  </footer>
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -497,6 +600,23 @@
         form.reset();
       }
     });
+  </script>
+  <script>
+  function smartenQuotes(el) {
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      node.nodeValue = node.nodeValue
+        .replace(/(^|[\s(\[{])"(\S)/g, '$1\u201c$2')  // opening double
+        .replace(/(\S)"([\s.,;:!?\])}]|$)/g, '$1\u201d$2')  // closing double
+        .replace(/"(\S)/g, '\u201c$1')  // fallback opening double
+        .replace(/(\S)"/g, '$1\u201d')  // fallback closing double
+        .replace(/(^|[\s(\[{])'(\S)/g, '$1\u2018$2')  // opening single
+        .replace(/(\w)'(\w)/g, '$1\u2019$2')  // apostrophe
+        .replace(/(\S)'([\s.,;:!?\])}]|$)/g, '$1\u2019$2');  // closing single
+    }
+  }
+  smartenQuotes(document.body);
   </script>
 </body>
 </html>
