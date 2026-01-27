@@ -14,7 +14,12 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
+  <link rel="icon" type="image/png" sizes="128x128" href="favicon-128.png">
+  <link rel="icon" type="image/png" sizes="256x256" href="favicon-256.png">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="apple-touch-icon" sizes="256x256" href="favicon-256.png">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,11 +32,11 @@
       --bg: #F5F0EB;
       --surface: #FFFFFF;
       --text: #1A1A1A;
-      --text-secondary: #6B6560;
+      --text-secondary: #524D48;
       --border: #2A2A2A;
       --border-light: #D1CBC4;
-      --primary: #3D7C47;
-      --primary-hover: #2E6338;
+      --primary: #62a94c;
+      --primary-hover: #4e8a3d;
       --error: #B83232;
       --input-bg: #FFFFFF;
       --hover-bg: #E8E2DC;
@@ -41,11 +46,11 @@
       --bg: #1A1612;
       --surface: #26221E;
       --text: #F5F0EB;
-      --text-secondary: #B0AAA4;
+      --text-secondary: #CDC8C2;
       --border: #3D3530;
       --border-light: #2D2824;
-      --primary: #4E9A5A;
-      --primary-hover: #3D7C47;
+      --primary: #62a94c;
+      --primary-hover: #4e8a3d;
       --error: #D44444;
       --input-bg: #2D2824;
       --hover-bg: #352F2A;
@@ -126,7 +131,7 @@
       align-items: center;
       gap: 10px;
       font-family: 'Jersey 10', sans-serif;
-      color: var(--text);
+      color: var(--text-secondary);
       font-size: 28px;
       margin-bottom: 40px;
     }
@@ -160,6 +165,14 @@
       background: var(--input-bg);
       color: var(--text);
       transition: background-color 0.2s;
+      clip-path: polygon(
+        4px 0, calc(100% - 4px) 0,
+        calc(100% - 4px) 4px, 100% 4px,
+        100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px),
+        calc(100% - 4px) 100%, 4px 100%,
+        4px calc(100% - 4px), 0 calc(100% - 4px),
+        0 4px, 4px 4px
+      );
     }
 
     .signup-form input[type="email"]::placeholder {
@@ -167,7 +180,7 @@
     }
 
     .signup-form input[type="email"]:focus {
-      outline: 2px solid var(--primary);
+      outline: none;
     }
 
     .signup-form button {
@@ -179,6 +192,14 @@
       border: none;
       cursor: pointer;
       transition: background-color 0.2s;
+      clip-path: polygon(
+        4px 0, calc(100% - 4px) 0,
+        calc(100% - 4px) 4px, 100% 4px,
+        100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px),
+        calc(100% - 4px) 100%, 4px 100%,
+        4px calc(100% - 4px), 0 calc(100% - 4px),
+        0 4px, 4px 4px
+      );
     }
 
     .signup-form button:hover {
@@ -206,6 +227,14 @@
       padding: 10px 20px;
       background: var(--surface);
       transition: background-color 0.2s;
+      clip-path: polygon(
+        4px 0, calc(100% - 4px) 0,
+        calc(100% - 4px) 4px, 100% 4px,
+        100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px),
+        calc(100% - 4px) 100%, 4px 100%,
+        4px calc(100% - 4px), 0 calc(100% - 4px),
+        0 4px, 4px 4px
+      );
     }
 
     .social-links a:hover {
@@ -261,9 +290,9 @@
     <div class="signup-form">
       <form id="signup-form">
         <input type="email" id="email" placeholder="your@email.com" required>
-        <button type="submit">Notify Me</button>
+        <button type="submit">Join the waitlist</button>
       </form>
-      <p id="form-message" style="margin-top: 12px; font-size: 14px;"></p>
+      <p id="form-message" style="margin-top: 12px; font-size: 14px;">&nbsp;</p>
     </div>
 
     <div class="social-links">
@@ -311,7 +340,7 @@
     });
 
     // Supabase signup
-    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_URL = 'https://pufzimcovdciuhuzosqj.supabase.co';
     const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_5jWHgF2c4zU6Q_DaaX-bmg_c6vCY-1L';
 
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
