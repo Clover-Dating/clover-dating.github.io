@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clover - Coming Soon</title>
+  <meta name="description" content="Clover is a dating app focused on compatibility. Sign up to get notified when we launch.">
+
+  <!-- Open Graph / Social -->
+  <meta property="og:title" content="Clover - Coming Soon">
+  <meta property="og:description" content="A dating app focused on compatibility. Sign up to get notified when we launch.">
+  <meta property="og:image" content="banner.png">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="logomark.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Jersey+10&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Light theme */
+      --bg: #F5F0EB;
+      --surface: #FFFFFF;
+      --text: #1A1A1A;
+      --text-secondary: #6B6560;
+      --border: #2A2A2A;
+      --border-light: #D1CBC4;
+      --primary: #3D7C47;
+      --primary-hover: #2E6338;
+      --error: #B83232;
+      --input-bg: #FFFFFF;
+      --hover-bg: #E8E2DC;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1A1612;
+      --surface: #26221E;
+      --text: #F5F0EB;
+      --text-secondary: #B0AAA4;
+      --border: #3D3530;
+      --border-light: #2D2824;
+      --primary: #4E9A5A;
+      --primary-hover: #3D7C47;
+      --error: #D44444;
+      --input-bg: #2D2824;
+      --hover-bg: #352F2A;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 24px;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: transparent;
+      border: none;
+      padding: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .theme-toggle img {
+      width: 24px;
+      height: 24px;
+      image-rendering: pixelated;
+    }
+
+    .theme-toggle .sun { display: none; }
+    .theme-toggle .moon { display: block; }
+    [data-theme="dark"] .theme-toggle .sun { display: block; }
+    [data-theme="dark"] .theme-toggle .moon { display: none; }
+
+    .container {
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .logo {
+      width: 120px;
+      height: auto;
+      margin-bottom: 32px;
+      image-rendering: pixelated;
+    }
+
+    h1 {
+      font-family: 'Jersey 10', sans-serif;
+      font-size: 64px;
+      font-weight: 400;
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+    }
+
+    .tagline {
+      font-size: 18px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+
+    .coming-soon {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Jersey 10', sans-serif;
+      background-color: var(--primary);
+      color: white;
+      padding: 8px 20px;
+      font-size: 28px;
+      letter-spacing: 2px;
+      margin-bottom: 40px;
+      border: 3px solid var(--border);
+    }
+
+    .coming-soon img {
+      width: 24px;
+      height: 24px;
+      image-rendering: pixelated;
+    }
+
+    .signup-form {
+      margin-bottom: 32px;
+    }
+
+    .signup-form input[type="email"] {
+      width: 100%;
+      max-width: 300px;
+      padding: 12px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      border: 3px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text);
+      margin-bottom: 12px;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+
+    .signup-form input[type="email"]::placeholder {
+      color: var(--text-secondary);
+    }
+
+    .signup-form input[type="email"]:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .signup-form button {
+      font-family: 'Jersey 10', sans-serif;
+      padding: 12px 28px;
+      font-size: 28px;
+      background-color: var(--primary);
+      color: white;
+      border: 3px solid var(--border);
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .signup-form button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .signup-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .social-links {
+      margin-top: 40px;
+    }
+
+    .social-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Jersey 10', sans-serif;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 28px;
+      padding: 10px 20px;
+      border: 3px solid var(--border);
+      background: var(--surface);
+      transition: background-color 0.2s;
+    }
+
+    .social-links a:hover {
+      background-color: var(--hover-bg);
+    }
+
+    .twitter-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    footer {
+      margin-top: auto;
+      padding-top: 48px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 48px;
+      }
+
+      .tagline {
+        font-size: 16px;
+      }
+
+      .signup-form input[type="email"],
+      .signup-form button {
+        width: 100%;
+        max-width: none;
+      }
+
+      .theme-toggle {
+        top: 12px;
+        right: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" aria-label="Toggle dark mode">
+    <img class="sun" src="sun.png" alt="Light mode">
+    <img class="moon" src="moon.png" alt="Dark mode">
+  </button>
+
+  <div class="container">
+    <img src="logomark.png" alt="Clover" class="logo">
+
+    <h1>Clover</h1>
+
+    <p class="tagline">
+      A dating app that puts compatibility first.<br>
+      Inspired by the golden era of online dating.
+    </p>
+
+    <div class="coming-soon"><img src="rocket.png" alt="">COMING SOON</div>
+
+    <div class="signup-form">
+      <p class="signup-label">Get notified when we launch</p>
+      <form id="signup-form">
+        <input type="email" id="email" placeholder="your@email.com" required>
+        <br>
+        <button type="submit">Notify Me</button>
+      </form>
+      <p id="form-message" style="margin-top: 12px; font-size: 14px;"></p>
+    </div>
+
+    <div class="social-links">
+      <a href="https://twitter.com/DateClover" target="_blank" rel="noopener">
+        <svg class="twitter-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+        Follow us on X
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Clover
+  </footer>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Theme handling
+    const themeToggle = document.querySelector('.theme-toggle');
+
+    // Check for saved preference or system preference
+    function getPreferredTheme() {
+      const saved = localStorage.getItem('theme');
+      if (saved) return saved;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+    }
+
+    // Initialize theme
+    setTheme(getPreferredTheme());
+
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (!localStorage.getItem('theme')) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    });
+
+    // Toggle button
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    });
+
+    // Supabase signup
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_5jWHgF2c4zU6Q_DaaX-bmg_c6vCY-1L';
+
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+    const form = document.getElementById('signup-form');
+    const message = document.getElementById('form-message');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+
+      message.textContent = 'Signing up...';
+      message.style.color = 'var(--text-secondary)';
+
+      const { error } = await db
+        .from('email_signups')
+        .insert({ email });
+
+      if (error) {
+        if (error.code === '23505') {
+          message.textContent = "You're already on the list!";
+          message.style.color = 'var(--primary)';
+        } else {
+          message.textContent = 'Something went wrong. Try again?';
+          message.style.color = 'var(--error)';
+        }
+      } else {
+        message.textContent = "You're in! We'll let you know when we launch.";
+        message.style.color = 'var(--primary)';
+        form.reset();
+      }
+    });
+  </script>
+</body>
+</html>
