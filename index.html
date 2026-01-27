@@ -40,6 +40,7 @@
       --error: #B83232;
       --input-bg: #FFFFFF;
       --hover-bg: #E8E2DC;
+      --placeholder: #A8A29C;
     }
 
     [data-theme="dark"] {
@@ -54,6 +55,7 @@
       --error: #D44444;
       --input-bg: #2D2824;
       --hover-bg: #352F2A;
+      --placeholder: #6A6560;
     }
 
     * {
@@ -153,17 +155,17 @@
 
     .signup-form form {
       display: inline-flex;
-      gap: 8px;
+      gap: 12px;
     }
 
     .signup-form input[type="email"] {
       width: 250px;
       padding: 12px 16px;
-      font-family: 'Inter', sans-serif;
-      font-size: 16px;
+      font-family: 'Jersey 10', sans-serif;
+      font-size: 28px;
       border: none;
       background: var(--input-bg);
-      color: var(--text);
+      color: var(--text-secondary);
       transition: background-color 0.2s;
       clip-path: polygon(
         4px 0, calc(100% - 4px) 0,
@@ -176,11 +178,49 @@
     }
 
     .signup-form input[type="email"]::placeholder {
-      color: var(--text-secondary);
+      color: var(--placeholder);
     }
 
     .signup-form input[type="email"]:focus {
       outline: none;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: inline-flex;
+    }
+
+    .input-wrapper::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      right: -4px;
+      bottom: -4px;
+      background: var(--primary);
+      clip-path: polygon(
+        8px 0, calc(100% - 8px) 0,
+        calc(100% - 8px) 4px, calc(100% - 4px) 4px,
+        calc(100% - 4px) 8px, 100% 8px,
+        100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px),
+        calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px),
+        calc(100% - 8px) 100%, 8px 100%,
+        8px calc(100% - 4px), 4px calc(100% - 4px),
+        4px calc(100% - 8px), 0 calc(100% - 8px),
+        0 8px, 4px 8px,
+        4px 4px, 8px 4px
+      );
+      opacity: 0;
+      transition: opacity 0.15s;
+      pointer-events: none;
+    }
+
+    .input-wrapper:hover::before {
+      opacity: 0.4;
+    }
+
+    .input-wrapper:focus-within::before {
+      opacity: 1;
     }
 
     .signup-form button {
@@ -202,8 +242,55 @@
       );
     }
 
-    .signup-form button:hover {
-      background-color: var(--primary-hover);
+    .button-wrapper {
+      position: relative;
+      display: inline-flex;
+    }
+
+    .button-wrapper::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      right: -4px;
+      bottom: -4px;
+      background: var(--primary);
+      clip-path: polygon(
+        8px 0, calc(100% - 8px) 0,
+        calc(100% - 8px) 4px, calc(100% - 4px) 4px,
+        calc(100% - 4px) 8px, 100% 8px,
+        100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px),
+        calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px),
+        calc(100% - 8px) 100%, 8px 100%,
+        8px calc(100% - 4px), 4px calc(100% - 4px),
+        4px calc(100% - 8px), 0 calc(100% - 8px),
+        0 8px, 4px 8px,
+        4px 4px, 8px 4px
+      );
+      opacity: 0;
+      transition: opacity 0.15s;
+      pointer-events: none;
+    }
+
+    .button-wrapper:hover::before {
+      background: #111111;
+      opacity: 0.6;
+    }
+
+    [data-theme="dark"] .button-wrapper:hover::before {
+      background: #fff;
+      opacity: .75;
+    }
+
+    [data-theme="dark"] .button-wrapper:focus-within::before,
+    [data-theme="dark"] .button-wrapper:active::before {
+      background: #fcfcfc;
+    }
+
+    .button-wrapper:focus-within::before,
+    .button-wrapper:active::before {
+      background: var(--text-secondary);
+      opacity: 1;
     }
 
     .signup-label {
@@ -216,12 +303,50 @@
       margin-top: 40px;
     }
 
+    .social-link-wrapper {
+      position: relative;
+      display: inline-flex;
+    }
+
+    .social-link-wrapper::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      right: -4px;
+      bottom: -4px;
+      background: var(--primary);
+      clip-path: polygon(
+        8px 0, calc(100% - 8px) 0,
+        calc(100% - 8px) 4px, calc(100% - 4px) 4px,
+        calc(100% - 4px) 8px, 100% 8px,
+        100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px),
+        calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px),
+        calc(100% - 8px) 100%, 8px 100%,
+        8px calc(100% - 4px), 4px calc(100% - 4px),
+        4px calc(100% - 8px), 0 calc(100% - 8px),
+        0 8px, 4px 8px,
+        4px 4px, 8px 4px
+      );
+      opacity: 0;
+      transition: opacity 0.15s;
+      pointer-events: none;
+    }
+
+    .social-link-wrapper:hover::before {
+      opacity: 0.4;
+    }
+
+    .social-link-wrapper:focus-within::before {
+      opacity: 1;
+    }
+
     .social-links a {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       font-family: 'Jersey 10', sans-serif;
-      color: var(--text);
+      color: var(--text-secondary);
       text-decoration: none;
       font-size: 28px;
       padding: 10px 20px;
@@ -235,10 +360,6 @@
         4px calc(100% - 4px), 0 calc(100% - 4px),
         0 4px, 4px 4px
       );
-    }
-
-    .social-links a:hover {
-      background-color: var(--hover-bg);
     }
 
     .twitter-icon {
@@ -289,19 +410,19 @@
 
     <div class="signup-form">
       <form id="signup-form">
-        <input type="email" id="email" placeholder="your@email.com" required>
-        <button type="submit">Join the waitlist</button>
+        <span class="input-wrapper"><input type="email" id="email" placeholder="your@email.com" required></span>
+        <span class="button-wrapper"><button type="submit">Join the waitlist</button></span>
       </form>
       <p id="form-message" style="margin-top: 12px; font-size: 14px;">&nbsp;</p>
     </div>
 
     <div class="social-links">
-      <a href="https://twitter.com/DateClover" target="_blank" rel="noopener">
+      <span class="social-link-wrapper"><a href="https://twitter.com/DateClover" target="_blank" rel="noopener">
         <svg class="twitter-icon" viewBox="0 0 24 24" fill="currentColor">
           <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
         </svg>
         Follow us on X
-      </a>
+      </a></span>
     </div>
   </div>
 
