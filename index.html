@@ -277,19 +277,20 @@
       opacity: 0.6;
     }
 
+    .button-wrapper:focus-within::before,
+    .button-wrapper:active::before {
+      background: var(--text-secondary);
+      opacity: 1;
+    }
+
     [data-theme="dark"] .button-wrapper:hover::before {
-      background: #fff;
+      background: #ffffff;
       opacity: .75;
     }
 
     [data-theme="dark"] .button-wrapper:focus-within::before,
     [data-theme="dark"] .button-wrapper:active::before {
-      background: #fcfcfc;
-    }
-
-    .button-wrapper:focus-within::before,
-    .button-wrapper:active::before {
-      background: var(--text-secondary);
+      background: #ffffff;
       opacity: 1;
     }
 
