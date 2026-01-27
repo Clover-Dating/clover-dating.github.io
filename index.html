@@ -166,10 +166,31 @@
       image-rendering: pixelated;
     }
 
+    .rocket {
+      position: relative;
+      width: 24px;
+      height: 24px;
+      display: inline-block;
+    }
+
+    .rocket img {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
     .coming-soon .rocket-dark { display: block; }
     .coming-soon .rocket-light { display: none; }
     [data-theme="dark"] .coming-soon .rocket-dark { display: none; }
     [data-theme="dark"] .coming-soon .rocket-light { display: block; }
+
+    .rocket .frame1 { animation: rocketFrame 1s step-end infinite; }
+    .rocket .frame2 { opacity: 0; animation: rocketFrame 1s step-end infinite 0.5s; }
+
+    @keyframes rocketFrame {
+      0%, 50% { opacity: 1; }
+      50.01%, 100% { opacity: 0; }
+    }
 
     .signup-form {
       margin-bottom: 32px;
@@ -463,10 +484,31 @@
       }
 
       .social-links {
-        top: auto;
-        left: auto;
-        bottom: 12px;
-        right: 12px;
+        top: 12px;
+        left: 12px;
+      }
+
+      .social-link-wrapper::before {
+        display: none;
+      }
+
+      .social-links a {
+        width: 45px;
+        height: 45px;
+        padding: 0;
+        border-radius: 50%;
+        background: var(--bg);
+        clip-path: none;
+        justify-content: center;
+        align-items: center;
+        font-size: 0;
+        gap: 0;
+        transition: background-color 0.2s;
+      }
+
+      .twitter-icon {
+        width: 24px;
+        height: 24px;
       }
     }
   </style>
@@ -489,7 +531,7 @@
       Dating without games or swiping. Deep compatibility matching—like the best dating apps, before they sold out.
     </p>
 
-    <div class="coming-soon"><img class="rocket-dark" src="rocket-dark.png" alt=""><img class="rocket-light" src="rocket-light.png" alt="">Coming soon</div>
+    <div class="coming-soon"><span class="rocket"><img class="rocket-dark frame1" src="rocket-dark.png" alt=""><img class="rocket-dark frame2" src="rocket-dark-2.png" alt=""><img class="rocket-light frame1" src="rocket-light.png" alt=""><img class="rocket-light frame2" src="rocket-light-2.png" alt=""></span>Coming soon</div>
 
     <div class="signup-form">
       <form id="signup-form">
