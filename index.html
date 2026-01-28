@@ -626,7 +626,8 @@
           city: geo.success ? geo.city : null,
           region: geo.success ? geo.region : null,
           country: geo.success ? geo.country : null,
-          country_code: geo.success ? geo.country_code : null
+          country_code: geo.success ? geo.country_code : null,
+          postal: geo.success ? geo.postal : null
         })
       });
     }).catch(function() {
