@@ -604,7 +604,7 @@
   smartenQuotes(document.body);
   </script>
   <script>
-  // Track visit (deduplicated, 30-min cooldown)
+  // Track visit (deduplicated, 30-min cooldown, client-side geo lookup)
   (function() {
     var COOLDOWN = 30 * 60 * 1000;
     var last = localStorage.getItem('clover_last_visit');
@@ -614,15 +614,33 @@
     var os = /iPhone|iPad/.test(ua) ? 'iOS' : /Mac/.test(ua) ? 'macOS' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : 'Other';
     var browser = /Edg/.test(ua) ? 'Edge' : /Chrome/.test(ua) ? 'Chrome' : /Firefox/.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : 'Other';
 
-    fetch('https://pufzimcovdciuhuzosqj.supabase.co/functions/v1/track-visit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        path: window.location.pathname,
-        referrer: document.referrer || null,
-        platform: os + ' / ' + browser
-      })
-    }).catch(function() {});
+    // Geo lookup from browser (sees visitor's real IP, no shared rate limits)
+    fetch('https://ipwho.is/').then(function(r) { return r.json(); }).then(function(geo) {
+      return fetch('https://pufzimcovdciuhuzosqj.supabase.co/functions/v1/track-visit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          path: window.location.pathname,
+          referrer: document.referrer || null,
+          platform: os + ' / ' + browser,
+          city: geo.success ? geo.city : null,
+          region: geo.success ? geo.region : null,
+          country: geo.success ? geo.country : null,
+          country_code: geo.success ? geo.country_code : null
+        })
+      });
+    }).catch(function() {
+      // If geo lookup fails, still track without geo
+      fetch('https://pufzimcovdciuhuzosqj.supabase.co/functions/v1/track-visit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          path: window.location.pathname,
+          referrer: document.referrer || null,
+          platform: os + ' / ' + browser
+        })
+      }).catch(function() {});
+    });
 
     localStorage.setItem('clover_last_visit', Date.now().toString());
   })();
