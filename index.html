@@ -603,5 +603,29 @@
   }
   smartenQuotes(document.body);
   </script>
+  <script>
+  // Track visit (deduplicated, 30-min cooldown)
+  (function() {
+    var COOLDOWN = 30 * 60 * 1000;
+    var last = localStorage.getItem('clover_last_visit');
+    if (last && Date.now() - parseInt(last) < COOLDOWN) return;
+
+    var ua = navigator.userAgent;
+    var os = /iPhone|iPad/.test(ua) ? 'iOS' : /Mac/.test(ua) ? 'macOS' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : 'Other';
+    var browser = /Edg/.test(ua) ? 'Edge' : /Chrome/.test(ua) ? 'Chrome' : /Firefox/.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : 'Other';
+
+    fetch('https://pufzimcovdciuhuzosqj.supabase.co/functions/v1/track-visit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        path: window.location.pathname,
+        referrer: document.referrer || null,
+        platform: os + ' / ' + browser
+      })
+    }).catch(function() {});
+
+    localStorage.setItem('clover_last_visit', Date.now().toString());
+  })();
+  </script>
 </body>
 </html>
