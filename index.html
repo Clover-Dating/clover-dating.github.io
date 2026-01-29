@@ -407,7 +407,7 @@
 
     .footer {
       margin-top: auto;
-      padding-top: 48px;
+      padding: 48px 0 14px;
       font-size: 13px;
       color: var(--text-secondary);
       letter-spacing: 0.5px;
@@ -421,6 +421,19 @@
     .footer a:hover {
       text-decoration: underline;
     }
+
+    .fleuron {
+      margin-bottom: 18px;
+    }
+    .fleuron img {
+      height: 24px;
+      width: auto;
+      image-rendering: pixelated;
+    }
+    .fleuron .fleuron-light { display: block; margin: 0 auto; }
+    .fleuron .fleuron-dark { display: none; }
+    [data-theme="dark"] .fleuron .fleuron-light { display: none; }
+    [data-theme="dark"] .fleuron .fleuron-dark { display: block; margin: 0 auto; }
 
     @media (max-width: 480px) {
       h1 {
@@ -514,6 +527,10 @@
     </div>
 
   <footer class="footer">
+    <div class="fleuron">
+      <img class="fleuron-light" src="fleuron-light.png" alt="">
+      <img class="fleuron-dark" src="fleuron-dark.png" alt="">
+    </div>
     Clover Dating &middot; 2026 &middot; <a href="mailto:hello@clover.dating">hello@clover.dating</a>
   </footer>
 
