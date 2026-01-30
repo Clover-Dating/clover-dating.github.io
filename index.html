@@ -623,6 +623,7 @@
   </script>
   <script>
   // Track visit (deduplicated, 30-min cooldown, client-side geo lookup)
+  // Inserts directly via Supabase client (requires RLS INSERT policy on page_visits)
   (function() {
     var COOLDOWN = 30 * 60 * 1000;
     var last = localStorage.getItem('clover_last_visit');
@@ -632,33 +633,24 @@
     var os = /iPhone|iPad/.test(ua) ? 'iOS' : /Mac/.test(ua) ? 'macOS' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : 'Other';
     var browser = /Edg/.test(ua) ? 'Edge' : /Chrome/.test(ua) ? 'Chrome' : /Firefox/.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : 'Other';
 
+    function trackVisit(geo) {
+      db.from('page_visits').insert({
+        page_path: window.location.pathname || '/',
+        referrer: document.referrer || null,
+        platform: os + ' / ' + browser,
+        city: geo ? geo.city : null,
+        region: geo ? geo.region : null,
+        country: geo ? geo.country : null,
+        country_code: geo ? geo.country_code : null,
+        postal: geo ? geo.postal : null
+      }).then(function() {});
+    }
+
     // Geo lookup from browser (sees visitor's real IP, no shared rate limits)
     fetch('https://ipwho.is/').then(function(r) { return r.json(); }).then(function(geo) {
-      return fetch('https://pufzimcovdciuhuzosqj.supabase.co/functions/v1/track-visit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          path: window.location.pathname,
-          referrer: document.referrer || null,
-          platform: os + ' / ' + browser,
-          city: geo.success ? geo.city : null,
-          region: geo.success ? geo.region : null,
-          country: geo.success ? geo.country : null,
-          country_code: geo.success ? geo.country_code : null,
-          postal: geo.success ? geo.postal : null
-        })
-      });
+      trackVisit(geo.success ? geo : null);
     }).catch(function() {
-      // If geo lookup fails, still track without geo
-      fetch('https://pufzimcovdciuhuzosqj.supabase.co/functions/v1/track-visit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          path: window.location.pathname,
-          referrer: document.referrer || null,
-          platform: os + ' / ' + browser
-        })
-      }).catch(function() {});
+      trackVisit(null);
     });
 
     localStorage.setItem('clover_last_visit', Date.now().toString());
