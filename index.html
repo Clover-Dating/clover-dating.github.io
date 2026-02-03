@@ -114,7 +114,7 @@
 
     .logo {
       width: 228px;
-      height: auto;
+      height: 212px;
       margin-bottom: 32px;
       image-rendering: pixelated;
     }
@@ -559,7 +559,7 @@
   </footer>
 
   <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // Theme handling
     const themeToggle = document.querySelector('.theme-toggle');
@@ -647,7 +647,7 @@
   <script>
   // Track visit (deduplicated, 30-min cooldown, client-side geo lookup)
   // Inserts directly via Supabase client (requires RLS INSERT policy on page_visits)
-  (function() {
+  window.addEventListener('load', function() {
     var COOLDOWN = 30 * 60 * 1000;
     var last = localStorage.getItem('clover_last_visit');
     if (last && Date.now() - parseInt(last) < COOLDOWN) return;
@@ -677,7 +677,7 @@
     });
 
     localStorage.setItem('clover_last_visit', Date.now().toString());
-  })();
+  });
   </script>
 </body>
 </html>
