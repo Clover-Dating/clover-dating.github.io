@@ -564,38 +564,47 @@
   <script>
     // Theme handling
     const themeToggle = document.querySelector('.theme-toggle');
+    const THEME_TTL = 60 * 60 * 1000; // 1 hour
 
-    // Check for saved preference or system preference
+    function hasValidUserPreference() {
+      var savedAt = localStorage.getItem('theme_set_at');
+      return savedAt && (Date.now() - parseInt(savedAt)) < THEME_TTL;
+    }
+
     function getPreferredTheme() {
-      const saved = localStorage.getItem('theme');
-      if (saved) return saved;
+      if (hasValidUserPreference()) return localStorage.getItem('theme');
+      // Expired or no preference — clean up and use system theme
+      localStorage.removeItem('theme');
+      localStorage.removeItem('theme_set_at');
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
 
     function setTheme(theme) {
       document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem('theme', theme);
     }
 
     // Initialize theme
     setTheme(getPreferredTheme());
 
-    // Listen for system theme changes
+    // Listen for system theme changes (applies when no valid user override)
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      if (!localStorage.getItem('theme')) {
+      if (!hasValidUserPreference()) {
         setTheme(e.matches ? 'dark' : 'light');
       }
     });
 
-    // Toggle button
+    // Toggle button — only explicit toggles persist with TTL
     themeToggle.addEventListener('click', () => {
       const current = document.documentElement.getAttribute('data-theme');
-      setTheme(current === 'dark' ? 'light' : 'dark');
+      const next = current === 'dark' ? 'light' : 'dark';
+      setTheme(next);
+      localStorage.setItem('theme', next);
+      localStorage.setItem('theme_set_at', Date.now().toString());
     });
 
     // Track visit (deduplicated, 30-min cooldown, client-side geo lookup)
     // Inserts directly via Supabase client (requires RLS INSERT policy on page_visits)
-    function trackPageVisit() {
+    function trackPageVisit(db) {
 
       var COOLDOWN = 30 * 60 * 1000;
       var last = localStorage.getItem('clover_last_visit');
@@ -629,13 +638,11 @@
     };
 
     function supabaseSetup() {
-      trackPageVisit();
-
-      // Supabase signup
       const SUPABASE_URL = 'https://pufzimcovdciuhuzosqj.supabase.co';
       const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_5jWHgF2c4zU6Q_DaaX-bmg_c6vCY-1L';
-
       const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+      trackPageVisit(db);
 
       const form = document.getElementById('signup-form');
       const message = document.getElementById('form-message');
