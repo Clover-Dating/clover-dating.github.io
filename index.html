@@ -649,6 +649,12 @@
   // Track visit (deduplicated, 30-min cooldown, client-side geo lookup)
   // Inserts directly via Supabase client (requires RLS INSERT policy on page_visits)
   window.addEventListener('load', function() {
+    if (!window.supabase) {
+      console.warn('Supabase not loaded');
+      return;
+    }
+    var db = window.supabase.createClient('YOUR_URL', 'YOUR_ANON_KEY');
+
     var COOLDOWN = 30 * 60 * 1000;
     var last = localStorage.getItem('clover_last_visit');
     if (last && Date.now() - parseInt(last) < COOLDOWN) return;
