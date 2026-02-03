@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
   <title>Clover &middot; Coming Soon</title>
   <meta name="description" content="Clover is a humane dating app focused on compatibility, without ads or swiping. Sign up to get notified when we launch.">
 
@@ -598,7 +599,7 @@
     var lastToggle = 0;
     themeToggle.addEventListener('click', () => {
       var now = Date.now();
-      if (now - lastToggle < 300) return;
+      if (now - lastToggle < 50) return;
       lastToggle = now;
       const current = document.documentElement.getAttribute('data-theme');
       const next = current === 'dark' ? 'light' : 'dark';
