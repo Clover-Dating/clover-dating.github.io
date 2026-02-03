@@ -594,12 +594,17 @@
     });
 
     // Toggle button — only explicit toggles persist with TTL
+    // Debounce guards against Arc mobile (and similar) firing click twice per tap
+    var lastToggle = 0;
     themeToggle.addEventListener('click', () => {
+      var now = Date.now();
+      if (now - lastToggle < 300) return;
+      lastToggle = now;
       const current = document.documentElement.getAttribute('data-theme');
       const next = current === 'dark' ? 'light' : 'dark';
       setTheme(next);
       localStorage.setItem('theme', next);
-      localStorage.setItem('theme_set_at', Date.now().toString());
+      localStorage.setItem('theme_set_at', now.toString());
     });
 
     // Track visit (deduplicated, 30-min cooldown, client-side geo lookup)
