@@ -560,7 +560,7 @@
   </footer>
 
   <!-- Supabase -->
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="supabaseSetup()"></script>
   <script>
     // Theme handling
     const themeToggle = document.querySelector('.theme-toggle');
@@ -593,40 +593,79 @@
       setTheme(current === 'dark' ? 'light' : 'dark');
     });
 
-    // Supabase signup
-    const SUPABASE_URL = 'https://pufzimcovdciuhuzosqj.supabase.co';
-    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_5jWHgF2c4zU6Q_DaaX-bmg_c6vCY-1L';
+    // Track visit (deduplicated, 30-min cooldown, client-side geo lookup)
+    // Inserts directly via Supabase client (requires RLS INSERT policy on page_visits)
+    function trackPageVisit() {
 
-    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+      var COOLDOWN = 30 * 60 * 1000;
+      var last = localStorage.getItem('clover_last_visit');
+      if (last && Date.now() - parseInt(last) < COOLDOWN) return;
 
-    const form = document.getElementById('signup-form');
-    const message = document.getElementById('form-message');
+      var ua = navigator.userAgent;
+      var os = /iPhone|iPad/.test(ua) ? 'iOS' : /Mac/.test(ua) ? 'macOS' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : 'Other';
+      var browser = /Edg/.test(ua) ? 'Edge' : /Chrome/.test(ua) ? 'Chrome' : /Firefox/.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : 'Other';
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-
-      message.textContent = 'Signing up...';
-      message.style.color = 'var(--text-secondary)';
-
-      const { error } = await db
-        .from('email_signups')
-        .insert({ email });
-
-      if (error) {
-        if (error.code === '23505') {
-          message.textContent = "You're already on the list!";
-          message.style.color = 'var(--primary)';
-        } else {
-          message.textContent = 'Something went wrong. Try again?';
-          message.style.color = 'var(--error)';
-        }
-      } else {
-        message.textContent = "You're in! We'll let you know when we launch.";
-        message.style.color = 'var(--primary)';
-        form.reset();
+      function trackVisit(geo) {
+        db.from('page_visits').insert({
+          page_path: window.location.pathname || '/',
+          referrer: document.referrer || null,
+          platform: os + ' / ' + browser,
+          city: geo ? geo.city : null,
+          region: geo ? geo.region : null,
+          country: geo ? geo.country : null,
+          country_code: geo ? geo.country_code : null,
+          postal: geo ? geo.postal : null
+        }).then(function() {});
       }
-    });
+
+      // Geo lookup from browser (sees visitor's real IP, no shared rate limits)
+      fetch('https://ipwho.is/').then(function(r) { return r.json(); }).then(function(geo) {
+        trackVisit(geo.success ? geo : null);
+      }).catch(function() {
+        trackVisit(null);
+      });
+
+      localStorage.setItem('clover_last_visit', Date.now().toString());
+    };
+
+    function supabaseSetup() {
+      trackPageVisit();
+
+      // Supabase signup
+      const SUPABASE_URL = 'https://pufzimcovdciuhuzosqj.supabase.co';
+      const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_5jWHgF2c4zU6Q_DaaX-bmg_c6vCY-1L';
+
+      const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+      const form = document.getElementById('signup-form');
+      const message = document.getElementById('form-message');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+
+        message.textContent = 'Signing up...';
+        message.style.color = 'var(--text-secondary)';
+
+        const { error } = await db
+          .from('email_signups')
+          .insert({ email });
+
+        if (error) {
+          if (error.code === '23505') {
+            message.textContent = "You're already on the list!";
+            message.style.color = 'var(--primary)';
+          } else {
+            message.textContent = 'Something went wrong. Try again?';
+            message.style.color = 'var(--error)';
+          }
+        } else {
+          message.textContent = "You're in! We'll let you know when we launch.";
+          message.style.color = 'var(--primary)';
+          form.reset();
+        }
+      });
+    }
   </script>
   <script>
   function smartenQuotes(el) {
@@ -644,47 +683,6 @@
     }
   }
   smartenQuotes(document.body);
-  </script>
-  <script>
-  // Track visit (deduplicated, 30-min cooldown, client-side geo lookup)
-  // Inserts directly via Supabase client (requires RLS INSERT policy on page_visits)
-  window.addEventListener('load', function() {
-    if (!window.supabase) {
-      console.warn('Supabase not loaded');
-      return;
-    }
-    var db = window.supabase.createClient('YOUR_URL', 'YOUR_ANON_KEY');
-
-    var COOLDOWN = 30 * 60 * 1000;
-    var last = localStorage.getItem('clover_last_visit');
-    if (last && Date.now() - parseInt(last) < COOLDOWN) return;
-
-    var ua = navigator.userAgent;
-    var os = /iPhone|iPad/.test(ua) ? 'iOS' : /Mac/.test(ua) ? 'macOS' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : 'Other';
-    var browser = /Edg/.test(ua) ? 'Edge' : /Chrome/.test(ua) ? 'Chrome' : /Firefox/.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : 'Other';
-
-    function trackVisit(geo) {
-      db.from('page_visits').insert({
-        page_path: window.location.pathname || '/',
-        referrer: document.referrer || null,
-        platform: os + ' / ' + browser,
-        city: geo ? geo.city : null,
-        region: geo ? geo.region : null,
-        country: geo ? geo.country : null,
-        country_code: geo ? geo.country_code : null,
-        postal: geo ? geo.postal : null
-      }).then(function() {});
-    }
-
-    // Geo lookup from browser (sees visitor's real IP, no shared rate limits)
-    fetch('https://ipwho.is/').then(function(r) { return r.json(); }).then(function(geo) {
-      trackVisit(geo.success ? geo : null);
-    }).catch(function() {
-      trackVisit(null);
-    });
-
-    localStorage.setItem('clover_last_visit', Date.now().toString());
-  });
   </script>
 </body>
 </html>
