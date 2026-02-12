@@ -627,7 +627,7 @@
           platform: os + ' / ' + browser,
           city: geo ? geo.city : null,
           region: geo ? geo.region : null,
-          country: geo ? geo.country : null,
+          country: geo ? geo.country_name : null,
           country_code: geo ? geo.country_code : null,
           postal: geo ? geo.postal : null
         }).then(function(res) {
@@ -637,8 +637,9 @@
       }
 
       // Geo lookup from browser (sees visitor's real IP, no shared rate limits)
-      fetch('https://ipwho.is/').then(function(r) { return r.json(); }).then(function(geo) {
-        trackVisit(geo.success ? geo : null);
+      // Using ipapi.co — free tier 1k req/day, CORS-enabled
+      fetch('https://ipapi.co/json/').then(function(r) { return r.json(); }).then(function(geo) {
+        trackVisit(geo && geo.city ? geo : null);
       }).catch(function() {
         trackVisit(null);
       });
