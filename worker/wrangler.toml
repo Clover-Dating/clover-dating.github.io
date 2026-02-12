@@ -1,0 +1,11 @@
+name = "clover-visit-tracker"
+main = "src/index.js"
+compatibility_date = "2026-02-12"
+
+routes = [
+  { pattern = "clover.dating/api/*", zone_name = "clover.dating" }
+]
+
+[vars]
+SUPABASE_URL = "https://pufzimcovdciuhuzosqj.supabase.co"
+SUPABASE_ANON_KEY = "sb_publishable_5jWHgF2c4zU6Q_DaaX-bmg_c6vCY-1L"

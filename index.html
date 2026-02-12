@@ -608,49 +608,35 @@
       localStorage.setItem('theme_set_at', now.toString());
     });
 
-    // Track visit (deduplicated, 30-min cooldown, client-side geo lookup)
-    // Inserts directly via Supabase client (requires RLS INSERT policy on page_visits)
-    function trackPageVisit(db) {
-
-      const COOLDOWN = 30 * 60 * 1000;
-      const last = localStorage.getItem('clover_last_visit');
+    // Track visit (deduplicated, 30-min cooldown)
+    // Geo resolved server-side by Cloudflare Worker at /api/visit
+    function trackPageVisit() {
+      var COOLDOWN = 30 * 60 * 1000;
+      var last = localStorage.getItem('clover_last_visit');
       if (last && Date.now() - parseInt(last) < COOLDOWN) return;
 
-      const ua = navigator.userAgent;
-      const os = /iPhone|iPad/.test(ua) ? 'iOS' : /Mac/.test(ua) ? 'macOS' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : 'Other';
-      const browser = /Edg/.test(ua) ? 'Edge' : /Chrome/.test(ua) ? 'Chrome' : /Firefox/.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : 'Other';
+      var ua = navigator.userAgent;
+      var os = /iPhone|iPad/.test(ua) ? 'iOS' : /Mac/.test(ua) ? 'macOS' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : 'Other';
+      var browser = /Edg/.test(ua) ? 'Edge' : /Chrome/.test(ua) ? 'Chrome' : /Firefox/.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : 'Other';
 
-      function trackVisit(geo) {
-        db.from('page_visits').insert({
+      fetch('/api/visit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           page_path: window.location.pathname || '/',
           referrer: document.referrer || null,
-          platform: os + ' / ' + browser,
-          city: geo ? geo.city : null,
-          region: geo ? geo.region : null,
-          country: geo ? geo.country_name : null,
-          country_code: geo ? geo.country_code : null,
-          postal: geo ? geo.postal : null
-        }).then(function(res) {
-          if (res.error) console.warn('visit tracking:', res.error);
-          else localStorage.setItem('clover_last_visit', Date.now().toString());
-        });
-      }
-
-      // Geo lookup from browser (sees visitor's real IP, no shared rate limits)
-      // Using ipapi.co — free tier 1k req/day, CORS-enabled
-      fetch('https://ipapi.co/json/').then(function(r) { return r.json(); }).then(function(geo) {
-        trackVisit(geo && geo.city ? geo : null);
-      }).catch(function() {
-        trackVisit(null);
-      });
+          platform: os + ' / ' + browser
+        })
+      }).then(function(r) {
+        if (r.ok) localStorage.setItem('clover_last_visit', Date.now().toString());
+      }).catch(function() {});
     };
+    trackPageVisit();
 
     function supabaseSetup() {
       const SUPABASE_URL = 'https://pufzimcovdciuhuzosqj.supabase.co';
       const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_5jWHgF2c4zU6Q_DaaX-bmg_c6vCY-1L';
       const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-
-      trackPageVisit(db);
 
       const form = document.getElementById('signup-form');
       const message = document.getElementById('form-message');
