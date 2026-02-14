@@ -360,6 +360,84 @@
       margin-bottom: 12px;
     }
 
+    .referral-success {
+      text-align: center;
+    }
+
+    .referral-success .success-title {
+      font-family: 'Jersey 10', sans-serif;
+      font-size: 36px;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .referral-success .success-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .referral-link-row {
+      display: inline-flex;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .referral-link-display {
+      font-family: 'Jersey 10', sans-serif;
+      font-size: 24px;
+      padding: 10px 16px;
+      background: var(--input-bg);
+      color: var(--text);
+      user-select: all;
+      display: flex;
+      align-items: center;
+      clip-path: polygon(
+        4px 0, calc(100% - 4px) 0,
+        calc(100% - 4px) 4px, 100% 4px,
+        100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px),
+        calc(100% - 4px) 100%, 4px 100%,
+        4px calc(100% - 4px), 0 calc(100% - 4px),
+        0 4px, 4px 4px
+      );
+    }
+
+    .copy-btn {
+      font-family: 'Jersey 10', sans-serif;
+      padding: 10px 24px;
+      font-size: 24px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      clip-path: polygon(
+        4px 0, calc(100% - 4px) 0,
+        calc(100% - 4px) 4px, 100% 4px,
+        100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px),
+        calc(100% - 4px) 100%, 4px 100%,
+        4px calc(100% - 4px), 0 calc(100% - 4px),
+        0 4px, 4px 4px
+      );
+    }
+
+    .copy-btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    @media (max-width: 480px) {
+      .referral-link-row {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .referral-link-display,
+      .copy-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
     .social-links {
       position: fixed;
       top: 16px;
@@ -733,8 +811,31 @@
       const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_5jWHgF2c4zU6Q_DaaX-bmg_c6vCY-1L';
       const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
+      const refParam = new URLSearchParams(window.location.search).get('ref');
+
       const form = document.getElementById('signup-form');
       const message = document.getElementById('form-message');
+      const signupFormDiv = document.querySelector('.signup-form');
+
+      function showReferralSuccess(referralCode) {
+        signupFormDiv.innerHTML =
+          '<div class="referral-success">' +
+            '<div class="success-title">You\u2019re in! \ud83c\udf40</div>' +
+            '<div class="success-subtitle">Know someone who deserves better dating? Share your link:</div>' +
+            '<div class="referral-link-row">' +
+              '<span class="referral-link-display">clover.dating/?ref=' + referralCode + '</span>' +
+              '<button class="copy-btn" id="copy-referral-btn">Copy</button>' +
+            '</div>' +
+          '</div>';
+        document.getElementById('copy-referral-btn').addEventListener('click', function() {
+          navigator.clipboard.writeText('https://clover.dating/?ref=' + referralCode).then(function() {
+            document.getElementById('copy-referral-btn').textContent = 'Copied!';
+            setTimeout(function() {
+              document.getElementById('copy-referral-btn').textContent = 'Copy';
+            }, 2000);
+          });
+        });
+      }
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -743,22 +844,36 @@
         message.textContent = 'Signing up...';
         message.style.color = 'var(--text-secondary)';
 
-        const { error } = await db
+        const row = { email };
+        if (refParam) row.referred_by = refParam;
+
+        const { data, error } = await db
           .from('email_signups')
-          .insert({ email });
+          .insert(row)
+          .select('referral_code')
+          .single();
 
         if (error) {
           if (error.code === '23505') {
-            message.textContent = "You're already on the list!";
-            message.style.color = 'var(--primary)';
+            // Already signed up — fetch their existing referral code
+            const { data: existing } = await db
+              .from('email_signups')
+              .select('referral_code')
+              .eq('email', email)
+              .single();
+
+            if (existing) {
+              showReferralSuccess(existing.referral_code);
+            } else {
+              message.textContent = "You're already on the list!";
+              message.style.color = 'var(--primary)';
+            }
           } else {
             message.textContent = 'Something went wrong. Try again?';
             message.style.color = 'var(--error)';
           }
         } else {
-          message.textContent = "You're in! We'll let you know when we launch.";
-          message.style.color = 'var(--primary)';
-          form.reset();
+          showReferralSuccess(data.referral_code);
         }
       });
     }
