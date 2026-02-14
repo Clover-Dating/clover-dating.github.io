@@ -101,12 +101,14 @@ if [ "${1:-}" = "--seed" ]; then
   done
 
 else
-  # Incremental: add missing days from last entry through today
+  # Incremental: recalculate last entry (may have gained commits) then add new days
   if [ ${#entries[@]} -gt 0 ]; then
     last_entry="${entries[${#entries[@]}-1]}"
     last_date=$(echo "$last_entry" | sed 's/.*"date":"\([^"]*\)".*/\1/')
-    current=$(date -j -v+1d -f "%Y-%m-%d" "$last_date" "+%Y-%m-%d" 2>/dev/null \
-              || date -d "$last_date + 1 day" +%Y-%m-%d)
+    # Drop the last entry so it gets recomputed
+    unset 'entries[${#entries[@]}-1]'
+    existing_dates=$(echo "$existing_dates" | sed "s/$last_date //")
+    current="$last_date"
   else
     current="$today"
   fi
