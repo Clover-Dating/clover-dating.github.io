@@ -360,8 +360,54 @@
       margin-bottom: 12px;
     }
 
+    .referral-card {
+      position: relative;
+    }
+
+    .referral-card::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      right: -4px;
+      bottom: -4px;
+      background: var(--border-light);
+      clip-path: polygon(
+        12px 0, calc(100% - 12px) 0,
+        calc(100% - 12px) 4px, calc(100% - 8px) 4px,
+        calc(100% - 8px) 8px, calc(100% - 4px) 8px,
+        calc(100% - 4px) 12px, 100% 12px,
+        100% calc(100% - 12px), calc(100% - 4px) calc(100% - 12px),
+        calc(100% - 4px) calc(100% - 8px), calc(100% - 8px) calc(100% - 8px),
+        calc(100% - 8px) calc(100% - 4px), calc(100% - 12px) calc(100% - 4px),
+        calc(100% - 12px) 100%, 12px 100%,
+        12px calc(100% - 4px), 8px calc(100% - 4px),
+        8px calc(100% - 8px), 4px calc(100% - 8px),
+        4px calc(100% - 12px), 0 calc(100% - 12px),
+        0 12px, 4px 12px,
+        4px 8px, 8px 8px,
+        8px 4px, 12px 4px
+      );
+      pointer-events: none;
+    }
+
     .referral-success {
+      position: relative;
       text-align: center;
+      background: var(--surface);
+      padding: 28px 24px;
+      clip-path: polygon(
+        8px 0, calc(100% - 8px) 0,
+        calc(100% - 8px) 4px, calc(100% - 4px) 4px,
+        calc(100% - 4px) 8px, 100% 8px,
+        100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px),
+        calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px),
+        calc(100% - 8px) 100%, 8px 100%,
+        8px calc(100% - 4px), 4px calc(100% - 4px),
+        4px calc(100% - 8px), 0 calc(100% - 8px),
+        0 8px, 4px 8px,
+        4px 4px, 8px 4px
+      );
     }
 
     .referral-success .success-title {
@@ -383,11 +429,16 @@
       align-items: stretch;
     }
 
+    .referral-link-display::selection {
+      background: #b3d4fc;
+      color: #1A1A1A;
+    }
+
     .referral-link-display {
       font-family: 'Jersey 10', sans-serif;
       font-size: 24px;
       padding: 10px 16px;
-      background: var(--input-bg);
+      background: var(--hover-bg);
       color: var(--text);
       user-select: all;
       display: flex;
@@ -819,14 +870,24 @@
 
       function showReferralSuccess(referralCode) {
         signupFormDiv.innerHTML =
+          '<div class="referral-card">' +
           '<div class="referral-success">' +
-            '<div class="success-title">You\u2019re in! \ud83c\udf40</div>' +
+            '<div class="success-title">You\u2019re in! <img src="favicon-32.png" alt="" style="width:28px;height:28px;image-rendering:pixelated;vertical-align:-2px;"></div>' +
             '<div class="success-subtitle">Know someone who deserves better dating? Share your link:</div>' +
             '<div class="referral-link-row">' +
-              '<span class="referral-link-display">clover.dating/?ref=' + referralCode + '</span>' +
+              '<span class="referral-link-display" id="referral-link-text">clover.dating/?ref=' + referralCode + '</span>' +
               '<button class="copy-btn" id="copy-referral-btn">Copy</button>' +
             '</div>' +
+          '</div>' +
           '</div>';
+        // Auto-select the referral link text
+        var linkEl = document.getElementById('referral-link-text');
+        var range = document.createRange();
+        range.selectNodeContents(linkEl);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+
         document.getElementById('copy-referral-btn').addEventListener('click', function() {
           navigator.clipboard.writeText('https://clover.dating/?ref=' + referralCode).then(function() {
             document.getElementById('copy-referral-btn').textContent = 'Copied!';
