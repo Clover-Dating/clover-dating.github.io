@@ -1038,6 +1038,16 @@
       container.appendChild(svg);
     }
 
+    // Sum commits or loc across all repos in a day entry
+    function sumField(entry, field) {
+      var total = 0;
+      var repos = entry.repos || {};
+      for (var name in repos) {
+        if (repos.hasOwnProperty(name)) total += (repos[name][field] || 0);
+      }
+      return total;
+    }
+
     fetch('metrics.json')
       .then(function(r) { return r.json(); })
       .then(function(data) {
@@ -1046,18 +1056,18 @@
         // Show last 14 days
         var recent = data.slice(-14);
         var latest = recent[recent.length - 1];
-        document.getElementById('commits-value').textContent = formatNumber(latest.commits);
-        document.getElementById('loc-value').textContent = formatNumber(latest.loc);
+        document.getElementById('commits-value').textContent = formatNumber(sumField(latest, 'commits'));
+        document.getElementById('loc-value').textContent = formatNumber(sumField(latest, 'loc'));
 
         var green = '#62a94c';
         sparkline(
           document.getElementById('commits-chart'),
-          recent.map(function(d) { return d.commits; }),
+          recent.map(function(d) { return sumField(d, 'commits'); }),
           green
         );
         sparkline(
           document.getElementById('loc-chart'),
-          recent.map(function(d) { return d.loc; }),
+          recent.map(function(d) { return sumField(d, 'loc'); }),
           green
         );
 

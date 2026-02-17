@@ -1,5 +1,11 @@
 #!/bin/bash
-# update-metrics.sh — Collect clover-app repo metrics for the landing page
+# update-metrics.sh — Collect multi-repo metrics for the landing page
+#
+# Repos counted:
+#   clover-app, clover-dash, blog, branding, github, landing, questions
+#
+# Each day's entry stores per-repo commits/loc breakdowns so the landing
+# page (or anything else) can choose which repos to include in totals.
 #
 # Usage:
 #   ./update-metrics.sh --seed    Build daily history from first commit to today
@@ -10,35 +16,78 @@
 set -eu
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_DIR="$(cd "$SCRIPT_DIR/../clover-app" && pwd)"
+BASE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 METRICS_FILE="$SCRIPT_DIR/metrics.json"
 
-cd "$REPO_DIR"
+# Repo definitions: name|dirs-to-scan|file-extensions
+# dirs: space-separated paths (empty = all tracked files)
+# extensions: comma-separated (used to build grep pattern)
+REPO_DEFS=(
+  "clover-app|src/ supabase/|ts,tsx,js,jsx,sql"
+  "clover-dash|src/ sql/|ts,tsx,js,jsx,sql,css"
+  "blog||html,scss,md,yml,sh"
+  "branding|scripts/|sh,py"
+  "github||md"
+  "landing||html,js,sh,sql,toml"
+  "questions||md,json,html,js,tex"
+)
 
-# Count source lines at a given git ref
-count_loc() {
-  local ref="$1"
-  local total=0
-  local files
-  files=$(git ls-tree -r --name-only "$ref" -- src/ supabase/ 2>/dev/null | grep -E '\.(ts|tsx|js|jsx|sql)$' || true)
+# Build a grep -E pattern from comma-separated extensions
+make_ext_pattern() {
+  echo '\.('"$(echo "$1" | sed 's/,/|/g')"')$'
+}
+
+# Count source lines at a given git ref for one repo
+# Args: repo_dir ref dirs ext_pattern
+count_loc_repo() {
+  local repo_dir="$1" ref="$2" dirs="$3" ext_pattern="$4"
+  local total=0 files
+  if [ -n "$dirs" ]; then
+    files=$(git -C "$repo_dir" ls-tree -r --name-only "$ref" -- $dirs 2>/dev/null \
+            | grep -E "$ext_pattern" || true)
+  else
+    files=$(git -C "$repo_dir" ls-tree -r --name-only "$ref" 2>/dev/null \
+            | grep -E "$ext_pattern" || true)
+  fi
   if [ -z "$files" ]; then echo "0"; return; fi
   while IFS= read -r f; do
-    lines=$(git show "$ref:$f" 2>/dev/null | wc -l | tr -d ' ' || echo "0")
+    lines=$(git -C "$repo_dir" show "$ref:$f" 2>/dev/null | wc -l | tr -d ' ' || echo "0")
     total=$((total + lines))
   done <<< "$files"
   echo "$total"
 }
 
-# Compute metrics for a single date and print the JSON entry
+# Compute metrics for a single date across all repos
+# Output: one JSON line with per-repo breakdowns
 compute_day() {
   local d="$1"
-  local commit
-  commit=$(git rev-list -1 --before="${d}T23:59:59" HEAD 2>/dev/null || true)
-  if [ -z "$commit" ]; then return 1; fi
-  local c l
-  c=$(git rev-list --count "$commit")
-  l=$(count_loc "$commit")
-  printf '{"date":"%s","commits":%d,"loc":%d}' "$d" "$c" "${l:-0}"
+  local any_commits=0
+  local repos_json=""
+
+  for def in "${REPO_DEFS[@]}"; do
+    IFS='|' read -r name dirs exts <<< "$def"
+    local repo_dir="$BASE_DIR/$name"
+    [ -d "$repo_dir/.git" ] || continue
+
+    local commit
+    commit=$(git -C "$repo_dir" rev-list -1 --before="${d}T23:59:59" HEAD 2>/dev/null || true)
+    if [ -z "$commit" ]; then
+      # Repo had no commits yet on this date — omit from entry
+      continue
+    fi
+
+    local c l ext_pattern
+    c=$(git -C "$repo_dir" rev-list --count "$commit" 2>/dev/null || echo "0")
+    ext_pattern=$(make_ext_pattern "$exts")
+    l=$(count_loc_repo "$repo_dir" "$commit" "$dirs" "$ext_pattern")
+
+    [ -n "$repos_json" ] && repos_json="${repos_json},"
+    repos_json="${repos_json}\"${name}\":{\"commits\":${c},\"loc\":${l:-0}}"
+    any_commits=1
+  done
+
+  [ "$any_commits" -eq 0 ] && return 1
+  printf '{"date":"%s","repos":{%s}}' "$d" "$repos_json"
 }
 
 # Read existing entries from metrics.json (returns them, one per line, no commas)
@@ -67,13 +116,28 @@ write_json() {
   echo "]" >> "$METRICS_FILE"
 }
 
+# Find the earliest first-commit date across all repos
+earliest_first_date() {
+  local earliest=""
+  for def in "${REPO_DEFS[@]}"; do
+    IFS='|' read -r name dirs exts <<< "$def"
+    local repo_dir="$BASE_DIR/$name"
+    [ -d "$repo_dir/.git" ] || continue
+    local fd
+    fd=$(git -C "$repo_dir" log --reverse --format='%ad' --date=short 2>/dev/null | head -1 || true)
+    if [ -n "$fd" ] && { [ -z "$earliest" ] || [[ "$fd" < "$earliest" ]]; }; then
+      earliest="$fd"
+    fi
+  done
+  echo "$earliest"
+}
+
 # Collect existing dates into a lookup string
 existing_dates=""
 entries=()
 while IFS= read -r line; do
   [ -z "$line" ] && continue
   entries+=("$line")
-  # Extract date from JSON
   d=$(echo "$line" | sed 's/.*"date":"\([^"]*\)".*/\1/')
   existing_dates="${existing_dates}${d} "
 done <<< "$(read_existing)"
@@ -82,7 +146,11 @@ today=$(date +%Y-%m-%d)
 
 if [ "${1:-}" = "--seed" ]; then
   # Build daily history from first commit to today
-  first_date=$(git log --reverse --format='%ad' --date=short | head -1 || true)
+  first_date=$(earliest_first_date)
+  if [ -z "$first_date" ]; then
+    echo "No commits found in any repo" >&2
+    exit 1
+  fi
   echo "Seeding daily metrics from $first_date to $today..." >&2
 
   current="$first_date"
